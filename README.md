@@ -233,12 +233,10 @@ quantitative agreement with high-Reynolds-number wind tunnel data.
 
 ---
 
-## License
 
-Released under the MIT License. See [LICENSE](LICENSE).
 
 ## Author
 
 **<Your Name>**
 <Your Department>, <Your College>
-GitHub: [@your-username](https://github.com/your-username) · Email: your.email@example.com
+GitHub: [@cr1825](https://github.com/cr1825) · Email: pchaitanya74@gmail.com.com
