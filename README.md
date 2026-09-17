@@ -46,7 +46,7 @@ The k-ω model was chosen over k-ε because it integrates through the viscous
 sublayer to the wall rather than relying on wall functions, which makes it
 substantially better at predicting boundary-layer separation — the physics that
 governs drag and the shape of the lift curve near stall. The reasoning is set
-out in full in [`docs/methodology.md`](docs/methodology.md).
+out in full in [`docs/methodology.md`](methodology.md).
 
 ---
 
