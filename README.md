@@ -10,7 +10,7 @@ generate and format the airfoil geometry, a Fluent journal that fixes the solver
 settings, documented meshing and setup procedures, and post-processing scripts
 that turn the parametric results into report-ready plots.
 
-!airfoil_naca4424.png
+airfoil_naca4424.png
 
 ---
 
