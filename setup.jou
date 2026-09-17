@@ -1,0 +1,76 @@
+; ============================================================================
+; setup.jou - Fluent TUI journal for the 2D NACA airfoil case
+; ============================================================================
+; This reproduces the GUI setup described in docs/ansys_workflow.md. Running it
+; means the solver settings are identical every time, which matters when you
+; are comparing angles of attack.
+;
+; To run:
+;   Fluent GUI :  File > Read > Journal...  and pick this file
+;   Batch      :  fluent 2ddp -g -i setup.jou
+;
+; It assumes the mesh has already been generated in Workbench with the named
+; selections: inlet, outlet, walls, airfoil.
+; ============================================================================
+
+; --- Read the mesh (edit the path to match your exported mesh) --------------
+/file/read-case airfoil_mesh.msh
+
+; --- Check and scale --------------------------------------------------------
+/mesh/check
+/mesh/quality
+
+; --- Solver: pressure-based, steady, 2D ------------------------------------
+/define/models/steady yes
+
+; --- Turbulence model: standard k-omega ------------------------------------
+; k-omega resolves the near-wall boundary layer directly, which is what makes
+; the drag prediction trustworthy. It requires an inflation layer with a low
+; y+ on the airfoil surface.
+/define/models/viscous/kw-standard yes
+
+; --- Material: air ----------------------------------------------------------
+/define/materials/change-create air air yes constant 1.225 no no yes constant 1.7894e-05 no no no
+
+; --- Boundary conditions ----------------------------------------------------
+; Inlet: velocity inlet, 1.5 m/s in the +x direction
+/define/boundary-conditions/velocity-inlet inlet no no yes yes no 1.5 no 0 no 300 no no yes 5 10
+
+; Outlet: pressure outlet at gauge zero
+/define/boundary-conditions/pressure-outlet outlet yes no 0 no 300 no yes no no no yes 5 10 yes no no no
+
+; Airfoil: no-slip stationary wall
+/define/boundary-conditions/wall airfoil 0 no 0 no no no 0 no no no no 0 no 0 no 1 no no
+
+; --- Reference values -------------------------------------------------------
+; The reference area must match the actual airfoil surface area, otherwise
+; every coefficient is scaled wrongly. Compute it from the geometry and edit.
+/report/reference-values/area 0.001
+/report/reference-values/density 1.225
+/report/reference-values/velocity 1.5
+/report/reference-values/length 0.1
+
+; --- Convergence criteria ---------------------------------------------------
+/solve/monitors/residual/convergence-criteria 1e-6 1e-6 1e-6 1e-6 1e-6
+
+; --- Solution methods -------------------------------------------------------
+/solve/set/p-v-coupling 24                 ; Coupled scheme
+/solve/set/discretization-scheme/mom 1     ; Second order upwind, momentum
+/solve/set/discretization-scheme/k 1
+/solve/set/discretization-scheme/omega 1
+
+; --- Initialise and run -----------------------------------------------------
+/solve/initialize/hyb-initialization
+/solve/iterate 500
+
+; --- Report the forces ------------------------------------------------------
+; Lift acts normal to the freestream, drag along it. For a non-zero AOA these
+; direction vectors must be rotated: lift = (-sin a, cos a), drag = (cos a, sin a).
+/report/forces/wall-forces yes 0 1 no        ; lift  (AOA = 0)
+/report/forces/wall-forces yes 1 0 no        ; drag  (AOA = 0)
+/report/forces/wall-moments no
+
+; --- Write the results ------------------------------------------------------
+/file/write-case-data airfoil_solved.cas.h5 ok
+
+; exit
